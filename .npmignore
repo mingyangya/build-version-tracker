@@ -1,0 +1,36 @@
+# 开发文件
+src/
+*.test.js
+*.test.ts
+test-simple.js
+
+# 构建工具配置
+vite.config.js
+
+# 依赖管理
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# 开发环境文件
+.env
+.env.local
+.env.development
+.env.production
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# IDE 文件
+.vscode/
+.idea/
+
+# Git 文件
+.git/
+.gitignore
+
+# 文档（可选，如果需要发布文档可以移除）
+README.md
