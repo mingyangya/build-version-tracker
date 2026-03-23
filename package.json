@@ -3,7 +3,7 @@
   "description": "A universal build tool plugin for version tracking and build automation (supports Webpack and Vite)",
   "keywords": ["build", "version", "tracker", "automation", "webpack", "vite", "plugin"],
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "commonjs",
   "exports": {
     ".": {
@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "vite build",
-    "test": "node ./test-simple.js"
+    "test": "node ./test/test-simple.mjs"
   },
   "peerDependencies": {
     "adm-zip": "^0.5.16",

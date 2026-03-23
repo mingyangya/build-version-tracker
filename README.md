@@ -126,7 +126,7 @@ npm unlink
 pnpm link --global
 
 # 在测试项目中
-pnpm link --global build-version-tracker
+pnpm link build-version-tracker
 ```
 
 ### 使用 yarn link（如果使用 yarn）
@@ -390,16 +390,25 @@ MIT
 
 ## 更新日志
 
+### v0.0.3
+- 初始版本发布
+- 支持 Webpack (3.0+) 和 Vite 构建工具
+- 支持 ES 模块和 CommonJS 模块
+- 自动生成版本信息和打包构建产物
+- 智能版本检测，自动适配不同 Webpack 版本
+- 完善的错误处理和降级策略
+- ✨优化测试脚本，支持 ES 模块语法
+
+### v0.0.2
+- 初始版本发布
+- ✨ 支持 Webpack (3.0+) 和 Vite 构建工具
+- 支持 ES 模块和 CommonJS 模块
+- 自动生成版本信息和打包构建产物
+- ✨ 智能版本检测，自动适配不同 Webpack 版本
+- ✨ 完善的错误处理和降级策略
+
 ### v0.0.1
 - 初始版本发布
 - 支持 Webpack 和 Vite 构建工具
 - 支持 ES 模块和 CommonJS 模块
 - 自动生成版本信息和打包构建产物
-
-### v0.0.2
-- 初始版本发布
-- `支持 Webpack (3.0+) 和 Vite 构建工具`
-- 支持 ES 模块和 CommonJS 模块
-- 自动生成版本信息和打包构建产物
-- `智能版本检测，自动适配不同 Webpack 版本`
-- `完善的错误处理和降级策略`
