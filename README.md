@@ -1,6 +1,6 @@
 # Build Version Tracker
 
-一个通用的构建工具插件，用于版本跟踪和构建自动化（支持 Webpack 和 Vite）。
+一个通用的构建工具插件，用于版本跟踪和构建自动化（支持 Webpack 3.0+ 和 Vite）。
 
 ## 功能特性
 
@@ -8,9 +8,10 @@
 - 🔍 记录构建人、分支和时间
 - 📄 生成版本文件 (version.txt)
 - 🗜️ 自动打包构建产物为 ZIP 文件
-- 🌐 支持环境变量配置
-- ⚡ 同时支持 Webpack 和 Vite 构建工具
+- 🌐 插件完全通过配置参数控制行为，不依赖环境变量
+- ⚡ 同时支持 Webpack (3.0+) 和 Vite 构建工具
 - 🔧 支持 ES 模块和 CommonJS 模块
+- 🛠️ 智能版本检测，自动适配不同 Webpack 版本
 
 ## 安装
 
@@ -47,13 +48,13 @@ yarn add adm-zip
 ```
 
 #### 一次性安装所有依赖：
- ```bash
- npm install build-version-tracker adm-zip webpack
- # 或
- pnpm add build-version-tracker adm-zip webpack
- # 或
- yarn add build-version-tracker adm-zip webpack
- ```
+```bash
+npm install build-version-tracker adm-zip webpack
+# 或
+pnpm add build-version-tracker adm-zip webpack
+# 或
+yarn add build-version-tracker adm-zip webpack
+```
 
 ## 本地开发测试
 
@@ -210,6 +211,18 @@ export default {
 
 插件完全通过配置参数控制行为，不依赖环境变量。
 
+### 插件生命周期
+
+#### Webpack 插件
+- **Webpack 3.x**: 使用 `plugin('after-emit')` 方法
+- **Webpack 4+**: 使用 `hooks.afterEmit.tapAsync()` 方法
+- **Webpack 5+**: 使用 `hooks.afterEmit.tapAsync()` 方法（新钩子系统）
+- 智能版本检测，自动适配不同 Webpack 版本
+
+#### Vite 插件
+- 使用 `closeBundle` 钩子，确保在所有构建操作完成后执行版本信息生成
+- 避免使用 `buildEnd` 钩子，防止文件被后续构建步骤覆盖
+
 ## 示例
 
 ### Webpack 基础使用
@@ -319,7 +332,7 @@ new BuildVersionTracker({
 
 ```
 src/
-├── index.js          # Webpack 插件实现
+├── index.js          # Webpack 插件实现（支持 3.0+）
 ├── vite-plugin.js    # Vite 插件实现
 └── utils.js          # 公共工具函数
 ```
@@ -340,6 +353,29 @@ pnpm test
 npm test
 ```
 
+## 技术实现
+
+### 版本检测机制
+
+插件使用智能版本检测机制，自动适配不同版本的 Webpack：
+
+1. **Webpack 4+**: 从 `compiler.webpack.version` 获取版本信息
+2. **Webpack 3.x**: 从 `compiler.version` 获取版本信息
+3. **降级策略**: 通过检测钩子系统存在性推断版本
+
+### 钩子系统适配
+
+- **Webpack 3.x**: 使用 `compiler.plugin('after-emit')`
+- **Webpack 4+**: 使用 `compiler.hooks.afterEmit.tapAsync()`
+- **Vite**: 使用 `closeBundle` 钩子确保构建完成后执行
+
+### 错误处理
+
+插件包含完善的错误处理机制，确保在各种情况下都能优雅降级：
+- 版本检测失败时使用默认版本
+- 钩子系统不存在时提供详细警告
+- 构建过程中的错误会被捕获并记录
+
 ## 许可证
 
 MIT
@@ -359,3 +395,11 @@ MIT
 - 支持 Webpack 和 Vite 构建工具
 - 支持 ES 模块和 CommonJS 模块
 - 自动生成版本信息和打包构建产物
+
+### v0.0.2
+- 初始版本发布
+- `支持 Webpack (3.0+) 和 Vite 构建工具`
+- 支持 ES 模块和 CommonJS 模块
+- 自动生成版本信息和打包构建产物
+- `智能版本检测，自动适配不同 Webpack 版本`
+- `完善的错误处理和降级策略`

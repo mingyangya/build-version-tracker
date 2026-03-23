@@ -23,11 +23,11 @@ const PluginClass = class {
     const isBuild = this.options.isBuild || false;
     const htmlName = this.options.htmlName || 'index.html';
 
-    // Webpack 构建结束后的钩子
-    compiler.hooks.afterEmit.tapAsync(pluginName, async (_compilation, callback) => {
+    // Webpack 构建结束后的处理函数
+    const buildHandler = async (compilation, callback) => {
       if (!isBuild) {
         console.log(`⏭️ ${pluginName} 构建已禁用，跳过版本信息生成`);
-        callback();
+        if (callback) callback();
         return;
       }
 
@@ -50,13 +50,82 @@ const PluginClass = class {
         });
 
         console.log(`✅ ${pluginName} 版本信息生成完成`);
-        callback();
+        if (callback) callback();
 
       } catch (error) {
         console.error(`❌ ${pluginName} 版本信息生成失败:`, error);
-        callback(error);
+        if (callback) callback(error);
       }
-    });
+    };
+
+    // 获取 Webpack 版本
+    let webpackVersion = '3';
+    try {
+      // Webpack 4+ 中可以从 compiler.webpack.version 获取
+      if (compiler.webpack && compiler.webpack.version) {
+        webpackVersion = compiler.webpack.version;
+      } 
+      // Webpack 3.x 中可以尝试从编译器实例获取版本信息
+      else if (compiler.version) {
+        webpackVersion = compiler.version;
+      }
+      // 其他方式检测版本
+      else if (compiler.hooks) {
+        // 有 hooks 系统，至少是 Webpack 4+
+        webpackVersion = '4';
+      } else if (compiler.plugin) {
+        // 有 plugin 方法，是 Webpack 3.x
+        webpackVersion = '3';
+      }
+    } catch (e) {
+      console.warn(`⚠️ ${pluginName} 无法检测 Webpack 版本，使用默认版本 3`);
+    }
+
+    // 使用 startsWith 方法判断 Webpack 版本
+    const isWebpack5 = webpackVersion.startsWith('5');
+    const isWebpack4 = webpackVersion.startsWith('4');
+    const isWebpack3 = webpackVersion.startsWith('3');
+
+    // 根据版本使用不同的钩子系统
+    if (isWebpack5 || isWebpack4) {
+      // Webpack 4+ 使用 hooks 系统
+      if (compiler.hooks && compiler.hooks.afterEmit) {
+        compiler.hooks.afterEmit.tapAsync(pluginName, (compilation, callback) => {
+          buildHandler(compilation, callback);
+        });
+      } else {
+        console.warn(`⚠️ ${pluginName} Webpack ${webpackVersion} 缺少 afterEmit 钩子，跳过版本信息生成`);
+      }
+    } else if (isWebpack3) {
+      // Webpack 3.x 使用 plugin 方法
+      if (compiler.plugin) {
+        compiler.plugin('after-emit', (compilation, callback) => {
+          buildHandler(compilation, callback);
+        });
+      } else {
+        console.warn(`⚠️ ${pluginName} Webpack ${webpackVersion} 缺少 after-emit 插件钩子，跳过版本信息生成`);
+      }
+    } else {
+      // 未知版本，尝试使用最兼容的方式
+      console.warn(`⚠️ ${pluginName} 检测到未知 Webpack 版本 ${webpackVersion}，尝试使用兼容模式`);
+      
+      // 优先尝试 hooks 系统
+      if (compiler.hooks && compiler.hooks.afterEmit) {
+        compiler.hooks.afterEmit.tapAsync(pluginName, (compilation, callback) => {
+          buildHandler(compilation, callback);
+        });
+      } 
+      // 然后尝试 plugin 方法
+      else if (compiler.plugin) {
+        compiler.plugin('after-emit', (compilation, callback) => {
+          buildHandler(compilation, callback);
+        });
+      } 
+      // 都失败了
+      else {
+        console.warn(`⚠️ ${pluginName} 无法找到合适的钩子系统，跳过版本信息生成`);
+      }
+    }
   }
 };
 
