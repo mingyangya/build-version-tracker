@@ -22,6 +22,8 @@ const PluginClass = class {
     const distPath = this.options.distPath || 'dist';
     const isBuild = this.options.isBuild || false;
     const htmlName = this.options.htmlName || 'index.html';
+    const formatVersion = this.options.formatVersion;
+    const formatHtmlVersion = this.options.formatHtmlVersion;
 
     // Webpack 构建结束后的处理函数
     const buildHandler = async (compilation, callback) => {
@@ -35,7 +37,11 @@ const PluginClass = class {
         console.log(`📝 ${pluginName} 开始生成版本信息...`);
 
         // 写入版本信息
-        const str = await writeVersion(distPath);
+        const str = await writeVersion({
+          distPath,
+          formatVersion,
+          formatHtmlVersion
+        });
 
         // 更新 HTML 文件
         updateMainHtml(str, distPath, htmlName);

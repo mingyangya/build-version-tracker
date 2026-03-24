@@ -12,6 +12,7 @@
 - ⚡ 同时支持 Webpack (3.0+) 和 Vite 构建工具
 - 🔧 支持 ES 模块和 CommonJS 模块
 - 🛠️ 智能版本检测，自动适配不同 Webpack 版本
+- ✨ 支持自定义版本信息格式化
 
 ## 安装
 
@@ -153,7 +154,19 @@ module.exports = {
     new BuildVersionTracker({
       distPath: 'dist',     // 构建输出目录，默认 'dist'
       isBuild: false,      // 是否启用构建，默认 false
-      htmlName: 'index.html' // HTML 文件名，默认 'index.html'
+      htmlName: 'index.html', // HTML 文件名，默认 'index.html'
+      // 自定义版本信息格式化
+      formatVersion: (info) => {
+        return `Version: ${info.time}, Branch: ${info.currentBranch}, User: ${info.userName}`;
+      },
+      // 自定义 HTML 版本信息格式化
+      formatHtmlVersion: (info) => {
+        return `<div class="version-info">
+          <p>Build User: ${info.userName}</p>
+          <p>Branch: ${info.currentBranch}</p>
+          <p>Time: ${info.time}</p>
+        </div>`;
+      }
     })
   ]
 };
@@ -169,7 +182,11 @@ export default {
     new BuildVersionTracker({
       distPath: 'dist',
       isBuild: false,
-      htmlName: 'index.html'
+      htmlName: 'index.html',
+      // 自定义版本信息格式化
+      formatVersion: (info) => {
+        return `Version: ${info.time}, Branch: ${info.currentBranch}, User: ${info.userName}`;
+      }
     })
   ]
 };
@@ -186,7 +203,11 @@ export default {
     viteVersionPlugin({
       distPath: 'dist',     // 构建输出目录，默认 'dist'
       isBuild: false,      // 是否启用构建，默认 false
-      htmlName: 'index.html' // HTML 文件名，默认 'index.html'
+      htmlName: 'index.html', // HTML 文件名，默认 'index.html'
+      // 自定义版本信息格式化
+      formatVersion: (info) => {
+        return `Version: ${info.time}, Branch: ${info.currentBranch}, User: ${info.userName}`;
+      }
     })
   ]
 };
@@ -201,7 +222,11 @@ export default {
     viteVersionPlugin({
       distPath: 'dist',
       isBuild: false,
-      htmlName: 'index.html'
+      htmlName: 'index.html',
+      // 自定义版本信息格式化
+      formatVersion: (info) => {
+        return `Version: ${info.time}, Branch: ${info.currentBranch}, User: ${info.userName}`;
+      }
     })
   ]
 };
@@ -267,21 +292,33 @@ export default {
 new BuildVersionTracker({
   distPath: 'build',                    // 自定义输出目录
   isBuild: true,                        // 启用构建功能
-  htmlName: 'app.html'                  // 自定义 HTML 文件名
+  htmlName: 'app.html',                  // 自定义 HTML 文件名
+  // 自定义版本信息格式化
+  formatVersion: (info) => {
+    return `Build: ${info.time}, Branch: ${info.currentBranch}, By: ${info.userName}`;
+  }
 })
 
 // Vite 自定义配置
 viteVersionPlugin({
   distPath: 'build',
   isBuild: true,                        // 启用构建功能
-  htmlName: 'app.html'
+  htmlName: 'app.html',
+  // 自定义版本信息格式化
+  formatVersion: (info) => {
+    return `Build: ${info.time}, Branch: ${info.currentBranch}, By: ${info.userName}`;
+  }
 })
 
 // 明确配置构建参数（推荐方式）
 new BuildVersionTracker({
   distPath: 'dist',        // 明确指定输出目录
   isBuild: true,           // 明确控制构建行为
-  htmlName: 'index.html'
+  htmlName: 'index.html',
+  // 自定义版本信息格式化
+  formatVersion: (info) => {
+    return `Version: ${info.time}, Branch: ${info.currentBranch}, User: ${info.userName}`;
+  }
 })
 ```
 
@@ -297,6 +334,12 @@ new BuildVersionTracker({
 
 ```
 构建人： username, 构建分支：main, 构建时间：2024-01-01 12:00:00，构建后文件位于：dist
+```
+
+### 自定义格式示例
+
+```
+Version: 2024-01-01 12:00:00, Branch: main, User: username
 ```
 
 ### HTML 文件更新示例
@@ -317,6 +360,8 @@ new BuildVersionTracker({
 | distPath | string | 'dist' | 构建输出目录 |
 | isBuild | boolean | false | 是否启用构建功能 |
 | htmlName | string | 'index.html' | HTML 文件名 |
+| formatVersion | function | null | 自定义版本信息格式化函数 |
+| formatHtmlVersion | function | null | 自定义 HTML 版本信息格式化函数 |
 
 ### Vite 插件选项
 
@@ -325,6 +370,17 @@ new BuildVersionTracker({
 | distPath | string | 'dist' | 构建输出目录 |
 | isBuild | boolean | false | 是否启用构建功能 |
 | htmlName | string | 'index.html' | HTML 文件名 |
+| formatVersion | function | null | 自定义版本信息格式化函数 |
+| formatHtmlVersion | function | null | 自定义 HTML 版本信息格式化函数 |
+
+### 自定义格式化函数参数
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| userName | string | 构建人 |
+| currentBranch | string | 构建分支 |
+| time | string | 构建时间 |
+| distPath | string | 构建产物路径 |
 
 ## 开发
 
@@ -389,6 +445,17 @@ MIT
 - **项目仓库**: [GitHub Repository](https://github.com/mingyangya/build-version-tracker)
 
 ## 更新日志
+
+### v0.0.4
+- 初始版本发布
+- 支持 Webpack (3.0+) 和 Vite 构建工具
+- 支持 ES 模块和 CommonJS 模块
+- 自动生成版本信息和打包构建产物
+- 智能版本检测，自动适配不同 Webpack 版本
+- 完善的错误处理和降级策略
+- 优化测试脚本，支持 ES 模块语法
+- ✨ 支持自定义版本信息格式化
+
 
 ### v0.0.3
 - 初始版本发布

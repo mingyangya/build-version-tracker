@@ -18,6 +18,8 @@ function viteVersionPlugin(options = {}) {
   const distPath = options.distPath || 'dist';
   const isBuild = options.isBuild || false; // 默认不启用构建
   const htmlName = options.htmlName || 'index.html';
+  const formatVersion = options.formatVersion;
+  const formatHtmlVersion = options.formatHtmlVersion;
 
   return {
     name: pluginName,
@@ -45,7 +47,11 @@ function viteVersionPlugin(options = {}) {
         console.log(`📝 ${pluginName} 开始生成版本信息...`);
 
         // 写入版本信息
-        const str = await writeVersion(distPath);
+        const str = await writeVersion({
+          distPath,
+          formatVersion,
+          formatHtmlVersion
+        });
 
         // 更新 HTML 文件
         updateMainHtml(str, distPath, htmlName);
