@@ -3,6 +3,8 @@ import PluginClass from '../dist/index.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import removeScriptTags from '../test/test-build.js';
+
 // 在 ES 模块中获取 __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,6 +12,8 @@ const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, './dist-example');
 
 console.log('🧪 开始测试 WebpackNpmPackagePlugin...\n');
+
+removeScriptTags()
 
 // 测试1: 创建插件实例
 console.log('1. 测试插件实例化...');
@@ -57,3 +61,22 @@ try {
 }
 
 console.log('\n🎉 所有测试完成!');
+
+// 测试4: 测试去除 script 标签的功能
+console.log('\n4. 测试去除 script 标签的功能...');
+try {
+  // 动态导入 CommonJS 模块
+  import('../test/test-build.js').then((module) => {
+    const removeScriptTags = module.default;
+    const htmlPath = path.resolve(__dirname, './dist-example/index.html');
+    const outputPath = path.resolve(__dirname, './dist-example/index-no-script.html');
+    
+    const result = removeScriptTags(htmlPath, outputPath);
+    console.log('✅ 去除 script 标签成功');
+    console.log('   处理后的 HTML 长度:', result.length);
+  }).catch((error) => {
+    console.log('❌ 导入 removeScriptTags 方法失败:', error.message);
+  });
+} catch (error) {
+  console.log('❌ 去除 script 标签测试失败:', error.message);
+}
