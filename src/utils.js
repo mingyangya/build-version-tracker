@@ -67,12 +67,29 @@ function formatDate(date) {
 }
 
 // 定义一个函数，用于写入版本信息
-const writeVersion = async (distPath) => {
+const writeVersion = async (options) => {
+  const { distPath, formatVersion, formatTextVersion } = options;
+  
   const userName = await getUserName();
   const currentBranch = await getCurrentBranchName();
   const time = formatDate(new Date());
-  const str = `构建人： ${userName}, 构建分支：${currentBranch}, 构建时间：${time}`;
-  const writeHtml = `${str}，构建后文件位于：${distPath}`;
+  
+  const versionInfo = {
+    userName,
+    currentBranch,
+    time,
+    distPath
+  };
+  
+  // 使用自定义格式化回调或默认格式
+  const str = formatVersion 
+    ? formatVersion(versionInfo)
+    : `构建人： ${userName}, 构建分支：${currentBranch}, 构建时间：${time}`;
+    
+  // 文本版本
+  const writeHtml = formatTextVersion
+    ? formatTextVersion(versionInfo)
+    : `${str}，构建后文件位于：${distPath}`;
 
   const fileDistName = path.resolve(process.cwd(), `${distPath}/version.txt`);
   console.log('-------------fileDistName------------', fileDistName);
@@ -129,6 +146,3 @@ export {
   getPackageInfo,
   kebabToPascalCase
 };
-
-
-
